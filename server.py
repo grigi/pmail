@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 import tornado.ioloop
 from tornado import autoreload
-from pmail import application
-
-def arfun():
-    print("Restarting...")
+from pmail import application, smtpd
 
 def logfun(self):
     print("%s: %s %s %s %.2fms %s" % (
@@ -16,13 +13,31 @@ def logfun(self):
         self.request.arguments if self.request.arguments else ""
     ))
 
+
 application.settings = {
     'debug': True,
     'log_function': logfun
 }
 application.listen(8000)
 
+global emlsvr
+emlsvr = smtpd()
+
+def arfun():
+    global emlsvr
+    emlsvr.stop()
+    print("Restarted...")
+
 ioloop = tornado.ioloop.IOLoop().instance()
 autoreload.add_reload_hook(arfun)
 autoreload.start(ioloop)
-ioloop.start()
+
+try:
+    ioloop.start()
+except KeyboardInterrupt:
+    print("Caught Ctrl-C.")
+
+emlsvr.stop()
+
+print("Clean Exit.")
+
