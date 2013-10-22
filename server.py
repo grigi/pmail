@@ -2,22 +2,10 @@
 import tornado.ioloop
 from tornado import autoreload
 from pmail import application, smtpd
+import logging
+logging.basicConfig(level=logging.INFO)
 
-def logfun(self):
-    print("%s: %s %s %s %.2fms %s" % (
-        self.request.remote_ip,
-        self.request.method,
-        self.request.host,
-        self.request.path,
-        self.request.request_time()*1000.0,
-        self.request.arguments if self.request.arguments else ""
-    ))
-
-
-application.settings = {
-    'debug': True,
-    'log_function': logfun
-}
+application.settings['debug'] = True
 application.listen(8000)
 
 global emlsvr
